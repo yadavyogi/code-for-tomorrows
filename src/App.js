@@ -1,8 +1,9 @@
-// App.js
+
 import React, { useState, useEffect } from 'react';
 import AudioPlayer from './components/AudioPlayer';
-import PlayList from "./components/PlayList";
+import Playlist from './components/PlayList';
 import NowPlaying from './components/NowPlaying';
+
 
 const App = () => {
   const [audioList, setAudioList] = useState([]);
