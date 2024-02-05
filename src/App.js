@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AudioPlayer from './components/AudioPlayer';
-import Playlist from './components/PlayList';
+import PlayList from './components/PlayList';
 import NowPlaying from './components/NowPlaying';
 
 
