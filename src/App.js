@@ -1,57 +1,74 @@
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import React, { useState, useEffect } from 'react';
-import AudioPlayer from './components/AudioPlayer';
-import PlayList from './components/PlayList';
-import NowPlaying from './components/NowPlaying';
+import ProductList from './components/ProductList';
+import ProductDetail from './components/ProductDetail';
+import ShoppingCart from './components/ShoppingCart';
+import Checkout from './components/CheckOut.js';
+
+
+import productsData from './data/products.json';
 
 
 const App = () => {
-  const [audioList, setAudioList] = useState([]);
-  const [currentPosition, setCurrentPosition] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+    const [products, setProducts] = useState(productsData);
+    const [cartItems, setCartItems] = useState([]);
+    
 
-  useEffect(() => {
-    // Fetch audio list from the server
-    fetch('http://your-audio-server-api/audio-list')
-      .then(response => response.json())
-      .then(data => {
-        console.log('Received audio list:', data);
-        setAudioList(data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching audio list:', error);
-        setIsLoading(false);
-      });
-  }, []);
 
-  useEffect(() => {
-    // Fetch the last saved position from the server or local storage
-    fetch('http://your-audio-server-api/last-position')
-      .then(response => response.json())
-      .then(data => {
-        console.log('Received last position:', data);
-        setCurrentPosition(data.position);
-      })
-      .catch(error => console.error('Error fetching last position:', error));
-  }, []);
+    const addToCart = (product) => {
+        setCartItems([...cartItems, product]);
+    };
 
-  const handleEnded = () => {
-    setCurrentPosition((prevIndex) => (prevIndex + 1) % audioList.length);
-  };
+    const removeFromCart = (productId) => {
+        const updatedCartItems = cartItems.filter(item => item.id !== productId);
+        setCartItems(updatedCartItems);
+    };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    const increaseQuantity = (productId) => {
+        const updatedCartItems = cartItems.map(item =>
+            item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+        setCartItems(updatedCartItems);
+    };
 
-  return (
-    <div>
-      <h1>React Audio Player</h1>
-      <AudioPlayer audioList={audioList} currentPosition={currentPosition} onEnded={handleEnded} />
-      <PlayList audioList={audioList} setCurrentPosition={setCurrentPosition} />
-      <NowPlaying currentPosition={currentPosition} audioList={audioList} />
-    </div>
-  );
-};
+    const decreaseQuantity = (productId) => {
+        const updatedCartItems = cartItems.map(item =>
+            item.id === productId && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+        );
+        setCartItems(updatedCartItems);
+    };
+
+    const proceedToCheckout = () => {
+        // Implement logic to navigate to checkout page
+    };
+
+    return (
+        <Router>
+            <div>
+                <Switch>
+                    <Route path="/" exact>
+                        <ProductList products={products} addToCart={addToCart} />
+                    </Route>
+                    <Route path="/product/:id">
+                        <ProductDetail products={products} addToCart={addToCart} />
+                    </Route>
+                    <Route path="/cart">
+                        <ShoppingCart
+                            cartItems={cartItems}
+                            removeFromCart={removeFromCart}
+                            increaseQuantity={increaseQuantity}
+                            decreaseQuantity={decreaseQuantity}
+                            proceedToCheckout={proceedToCheckout}
+                        />
+                    </Route>
+                    <Route path="/checkout">
+                        <Checkout cartItems={cartItems} />
+                    </Route>
+                </Switch>
+            </div>
+        </Router>
+    );
+}
 
 export default App;
